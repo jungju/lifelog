@@ -1,0 +1,51 @@
+{
+	"ImportPath": "bitbucket.org/jungju/life",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v79",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/boltdb/bolt",
+			"Comment": "v1.3.0-58-ge9cf4fa",
+			"Rev": "e9cf4fae01b5a8ff89d0ec6b32f0d9c9f79aefdd"
+		},
+		{
+			"ImportPath": "goji.io",
+			"Comment": "v2.0",
+			"Rev": "0d89ff54b2c18c9c4ba530e32496aef902d3c6cd"
+		},
+		{
+			"ImportPath": "goji.io/internal",
+			"Comment": "v2.0",
+			"Rev": "0d89ff54b2c18c9c4ba530e32496aef902d3c6cd"
+		},
+		{
+			"ImportPath": "goji.io/pat",
+			"Comment": "v2.0",
+			"Rev": "0d89ff54b2c18c9c4ba530e32496aef902d3c6cd"
+		},
+		{
+			"ImportPath": "goji.io/pattern",
+			"Comment": "v2.0",
+			"Rev": "0d89ff54b2c18c9c4ba530e32496aef902d3c6cd"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "10c134ea0df15f7e34d789338c7a2d76cc7a3ab9"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "a6bd8cefa1811bd24b86f8902872e4e8225f74c4"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2/internal",
+			"Rev": "a6bd8cefa1811bd24b86f8902872e4e8225f74c4"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "7a56174f0086b32866ebd746a794417edbc678a1"
+		}
+	]
+}

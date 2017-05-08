@@ -1,0 +1,6 @@
+JAWBONE_KEY=XrfhRjqYY2w \
+JAWBONE_SECRET=fec16e5370242d9b42ced89a87c81fb3f5ae42d5 \
+DB_NAME=life.db \
+WEB_PORT=8080 \
+STATIC_PATH=. \
+go run *.go
