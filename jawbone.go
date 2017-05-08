@@ -6,12 +6,15 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
 )
 
+const apiURL = "https://jawbone.com"
+
 type jawbone struct {
-	ID          string
-	AccessToken string
+	ID    string
+	Token *token
 }
 
 /*
@@ -120,7 +123,14 @@ type reqCreateCustom struct {
 	Share       bool                   `json:"share"`
 }
 
-func (j jawbone) save() error {
+type token struct {
+	AccessToken  string `json:"access_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int64  `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+func (j *jawbone) save() error {
 	j.ID = newUUID()
 	return db.Update(func(tx *bolt.Tx) error {
 		jawbones, err := tx.CreateBucketIfNotExists([]byte("jawbones"))
@@ -138,12 +148,13 @@ func (j jawbone) save() error {
 }
 
 func (j jawbone) createMeal(createMeal reqCreateMeal) error {
+	logrus.Info("current token", j.Token.AccessToken)
 	requestParam := httpRequestParams{
 		Method:  "POST",
-		URL:     "/nudge/api/v.1.1/users/@me/meals",
+		URL:     apiURL + "/nudge/api/v.1.1/users/@me/meals",
 		Body:    &createMeal,
 		Forms:   nil,
-		Headers: map[string]string{"Authorization": "Bearer", j.AccessToken: ""},
+		Headers: map[string]string{"Authorization": fmt.Sprintf("Bearer %s", j.Token.AccessToken)},
 	}
 
 	res, err := requestParam.request()
@@ -151,7 +162,9 @@ func (j jawbone) createMeal(createMeal reqCreateMeal) error {
 		return err
 	}
 
-	if res.StatusCode != 200 {
+	logrus.Info(res.StatusCode)
+	logrus.Info(string(res.Body))
+	if res.StatusCode != 201 {
 		return errCreateMeal
 	}
 
@@ -161,10 +174,10 @@ func (j jawbone) createMeal(createMeal reqCreateMeal) error {
 func (j jawbone) createEvent(createCustom reqCreateCustom) error {
 	requestParam := httpRequestParams{
 		Method:  "POST",
-		URL:     "/nudge/api/v.1.1/users/@me/generic_events",
+		URL:     apiURL + "/nudge/api/v.1.1/users/@me/generic_events",
 		Body:    &createCustom,
 		Forms:   nil,
-		Headers: map[string]string{"Authorization": "Bearer", j.AccessToken: ""},
+		Headers: map[string]string{"Authorization": "Bearer", j.Token.AccessToken: ""},
 	}
 
 	res, err := requestParam.request()
@@ -172,7 +185,7 @@ func (j jawbone) createEvent(createCustom reqCreateCustom) error {
 		return err
 	}
 
-	if res.StatusCode != 200 {
+	if res.StatusCode != 201 {
 		return errCreateMeal
 	}
 

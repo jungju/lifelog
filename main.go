@@ -14,12 +14,11 @@ import (
 
 	"strconv"
 
-	"log"
+	"encoding/json"
 
+	"github.com/Sirupsen/logrus"
 	"goji.io/pat"
 )
-
-const version = "v0.0.0"
 
 var (
 	db     *bolt.DB
@@ -29,7 +28,7 @@ var (
 
 var (
 	conf = &oauth2.Config{
-		RedirectURL:  "https://jjgo.kr/apps/up/redirect",
+		RedirectURL:  "http://life.jjgo.kr/up/callback",
 		ClientID:     os.Getenv("JAWBONE_KEY"),
 		ClientSecret: os.Getenv("JAWBONE_SECRET"),
 		Scopes:       []string{"basic_read", "extended_read", "location_read", "friends_read", "mood_read", "mood_write", "move_read", "move_write", "sleep_read", "sleep_write", "meal_read", "meal_write", "weight_read", "weight_write", "generic_event_read", "generic_event_write", "heartrate_read"},
@@ -48,18 +47,51 @@ func redirectToLogin(w http.ResponseWriter, r *http.Request) {
 	AuthCodeOption := oauth2.SetAuthURLParam("access_type", "code")
 	url := conf.AuthCodeURL("state", AuthCodeOption)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	return
 }
 
 func callback(w http.ResponseWriter, r *http.Request) {
-	code := r.FormValue("code")
-	exch, err := conf.Exchange(oauth2.NoContext, code)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
+	code := r.URL.Query().Get("code")
+	logrus.Infof("Get code : %s", code)
+
+	// exch, err := conf.Exchange(r.Context(), code)
+	// if err != nil {
+	// 	logrus.WithError(err).Error("Failed callback")
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	fmt.Fprint(w, "Internal Server Error 500")
+	// 	return
+	// }
+
+	// logrus.Errorf("%+v", exch)
+
+	queryString := fmt.Sprintf("client_id=%s&client_secret=%s&grant_type=authorization_code&code=%s", conf.ClientID, conf.ClientSecret, code)
+	req := httpRequestParams{
+		URL:    fmt.Sprintf("https://jawbone.com/auth/oauth2/token?%s", queryString),
+		Method: "POST",
 	}
 
-	j := jawbone{AccessToken: exch.AccessToken}
+	res, err := req.request()
+	if err != nil {
+		logrus.WithError(err).Error("Failed callback")
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "Internal Server Error 500")
+		return
+	}
+
+	logrus.Info(string(res.Body))
+	logrus.Info(res.StatusCode)
+
+	resToken := &token{}
+	if err = json.Unmarshal(res.Body, resToken); err != nil {
+		logrus.WithError(err).Error("Failed Unmarshal")
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "Internal Server Error 500")
+		return
+	}
+
+	j := &jawbone{Token: resToken}
 	if err := j.save(); err != nil {
+		logrus.WithError(err).Error("Failed save")
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "Internal Server Error 500")
 	}
@@ -75,22 +107,23 @@ func handlerWater(w http.ResponseWriter, r *http.Request) {
 	jawboneClient, err := makeJawbone(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
+		fmt.Fprint(w, "Internal Server Error 500"+err.Error())
+		return
 	}
 
 	cups := convToIntFromQuery(r, "cups", -1)
 	if cups == -1 {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Require cups")
-	}
-	if cups == -1 {
+		logrus.Error("Require cups")
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "Internal Server Error 500")
+		return
 	}
 
 	if err := jawboneClient.drinkWater(int(cups)); err != nil {
+		logrus.WithError(err).Error("Failed drinkWater")
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "Internal Server Error 500")
+		return
 	}
 }
 
@@ -121,6 +154,7 @@ func handlerPee(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "Internal Server Error 500")
+		return
 	}
 
 	peeType := convToIntFromQuery(r, "peeType", -1)
@@ -176,7 +210,7 @@ func init() {
 }
 
 func main() {
-	log.Println("starting boltdb-browser..")
+	logrus.Info("starting life-server..")
 
 	var err error
 	if db, err = bolt.Open(dbName, 0600, &bolt.Options{Timeout: 2 * time.Second}); err != nil {
@@ -187,7 +221,7 @@ func main() {
 	mux := goji.NewMux()
 	mux.HandleFunc(pat.Get("/"), hello)
 	mux.HandleFunc(pat.Get("/up/redirect"), redirectToLogin)
-	mux.HandleFunc(pat.Post("/up/callback"), callback)
+	mux.HandleFunc(pat.Get("/up/callback"), callback)
 	mux.HandleFunc(pat.Post("/up/action/:id/water"), handlerWater)
 	mux.HandleFunc(pat.Post("/up/action/:id/dump"), handlerDump)
 	mux.HandleFunc(pat.Post("/up/action/:id/pee"), handlerPee)
