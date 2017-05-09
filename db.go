@@ -52,11 +52,14 @@ func (jDB jawboneDB) CreateJawbone(j jawbone) error {
 	})
 }
 
-func (jDB jawboneDB) GetJawbone(id string) (*jawbone, error) {
+func (jDB jawboneDB) GetJawbone(token string) (*jawbone, error) {
 	j := &jawbone{}
 	err := jDB.DB.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("jawbones"))
-		k := []byte(id)
+		if b == nil {
+			return errInvalidToken
+		}
+		k := []byte(token)
 		if err := json.Unmarshal(b.Get(k), j); err != nil {
 			return err
 		}

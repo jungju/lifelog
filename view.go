@@ -14,7 +14,7 @@ const (
 
 func handlerHomeView(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles(
-		tmplPath + "home.html",
+		tmplPath + "home.tmpl",
 	)
 	if err != nil {
 		logrus.WithError(err).Error("Failed ParseFiles")
