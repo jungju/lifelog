@@ -1,0 +1,118 @@
+{{define "events"}}
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Life</title>
+    <link href="/statics/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <!-- Static navbar -->
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Life</a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="#">Home</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div><!--/.container-fluid -->
+      </nav>
+      <!-- Main component for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <h1>Jawbone Up 연동</h1>
+        <p>
+          <a class="btn btn-lg btn-primary" href="/up/redirect" role="button">연동하기</a>
+        </p>
+      </div>
+      <form class="form-inline" method="get" action="/">
+        <div class="form-group">
+          <label class="sr-only" for="inputToken">Token</label>
+          <div class="input-group">
+            <div class="input-group-addon">Token</div>
+            <input type="text" class="form-control" id="token" name="token" placeholder="Token" value="{{.token}}">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">링크 만들기</button>
+        <br>
+        {{ if ne .token ""}}{{ if eq .vaildToken false}}
+        <small class="text-danger">잘못된 토큰입니다. 현재 특정 사용자만 사용하고 있습니다. 필요하시면 연락주세요. jeongzu@gmail.com</small>
+        {{ end }}{{ end }}
+      </form>
+      <h2>이벤트</h2>
+      <table class="table">
+        <tr>
+          <td class="default" colspan="3"><h3>식사</h3></td>
+        </tr>
+        <tr>
+          <th>이벤트명</th>
+          <th>UP 인증</th>
+          <th>링크</th>
+        </tr>
+        <tr>
+          <td class="active">물</td>
+          <td><span class="label label-success">인증됨</span></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/water?cups=1"></td>
+        </tr>
+        <tr>
+          <td class="active">아이스아메리카노</td>
+          <td><span class="label label-success">인증됨</span></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/coffee"></td>
+        </tr>
+        <tr>
+          <td class="default" colspan="3"><h3>배변</h3></td>
+        </tr>
+        <tr>
+          <td class="active">소변</td>
+          <td><span class="label label-success">인증됨</span></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/urine?state=1"></td>
+        </tr>
+        <tr>
+          <td class="active">대변</td>
+          <td><span class="label label-success">인증됨</span></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/pooh?state=1"></td>
+        </tr>
+        <tr>
+          <td class="default" colspan="3"><h3>병</h3></td>
+        </tr>
+        <tr>
+          <td class="active">두통</td>
+          <td><span class="label label-success">인증됨</span></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/migraine?direction=1"></td>
+        </tr>
+        <tr>
+          <td class="active">소화불량</td>
+          <td><span class="label label-success">인증됨</span></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/indigestion?organ=1"></td>
+        </tr>
+        <tr>
+          <td class="default" colspan="3"><h3>아기</h3></td>
+        </tr>
+        <tr>
+          <td class="default">분유</td>
+          <td><span class="label label-success">인증됨</span></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="개발중"></td>
+        </tr>
+        <tr>
+          <td class="default">대소변</td>
+          <td><span class="label label-success">인증됨</span></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="개발중"></td>
+        </tr>
+      </table>
+    </div> <!-- /container -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/statics/js/bootstrap.min.js"></script>
+  </body>
+</html>
+{{end}}

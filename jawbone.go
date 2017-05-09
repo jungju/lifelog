@@ -2,15 +2,24 @@ package main
 
 import (
 	"crypto/rand"
-	"encoding/json"
 	"fmt"
 	"io"
 
+	"net/url"
+
+	"encoding/json"
+
 	"github.com/Sirupsen/logrus"
-	"github.com/boltdb/bolt"
+	"github.com/gorilla/schema"
+	shortid "github.com/ventu-io/go-shortid"
 )
 
 const apiURL = "https://jawbone.com"
+
+var (
+	decoder = schema.NewDecoder()
+	encoder = schema.NewEncoder()
+)
 
 type jawbone struct {
 	ID    string
@@ -33,18 +42,18 @@ items	JSON-encoded list	See list below
 */
 
 type reqCreateMeal struct {
-	Note        string              `json:"note"`
-	SubType     int                 `json:"sub_type"`
-	ImageURL    string              `json:"image_url"`
-	Photo       string              `json:"photo"`
-	PlaceLat    float64             `json:"place_lat"`
-	PlaceLon    float64             `json:"place_lon"`
-	PlaceAcc    float64             `json:"place_acc"`
-	PlaceName   string              `json:"place_name"`
-	TimeCreated int                 `json:"time_created"`
-	TimeZone    string              `json:"tz"`
-	Share       bool                `json:"share"`
-	Items       []reqCreateMealItem `json:"items"`
+	Note        string              `schema:"note"`
+	SubType     int                 `schema:"sub_type"`
+	ImageURL    string              `schema:"image_url"`
+	Photo       string              `schema:"photo"`
+	PlaceLat    float64             `schema:"place_lat"`
+	PlaceLon    float64             `schema:"place_lon"`
+	PlaceAcc    float64             `schema:"place_acc"`
+	PlaceName   string              `schema:"place_name"`
+	TimeCreated int                 `schema:"time_created"`
+	TimeZone    string              `schema:"tz"`
+	Share       bool                `schema:"share"`
+	Items       []reqCreateMealItem `schema:"-"`
 }
 
 /*
@@ -71,25 +80,26 @@ unsaturated_fat	float	Unsaturated fat content (in grams)
 caffeine	float	Caffeine content (in milligrams)
 */
 type reqCreateMealItem struct {
-	Name           string   `json:"name"`
-	Description    string   `json:"description"`
-	Amount         float64  `json:"amount"`
-	Measurement    string   `json:"measurement"`
-	Type           int      `json:"type"`
-	SubType        int      `json:"sub_type"`
-	FoodCategories []string `json:"food_categories"`
-	Category       string   `json:"category"`
-	FoodType       int      `json:"food_type"`
-	Calcium        int      `json:"calcium"`
-	Calories       int      `json:"calories"`
-	Carbohydrate   float64  `json:"carbohydrate"`
-	Fiber          float64  `json:"fiber"`
-	Protein        float64  `json:"protein"`
-	SaturatedFat   float64  `json:"saturated_fat"`
-	Sodium         float64  `json:"sodium"`
-	Sugar          float64  `json:"sugar"`
-	UnsaturatedFat float64  `json:"unsaturated_fat"`
-	Caffeine       float64  `json:"caffeine"`
+	Name           string   `json:"name,omitempty"`
+	Description    string   `json:"description,omitempty"`
+	Amount         float64  `json:"amount,omitempty"`
+	Measurement    string   `json:"measurement,omitempty"`
+	Type           int      `json:"type,omitempty"`
+	SubType        int      `json:"sub_type,omitempty"`
+	FoodCategories []string `json:"food_categories,omitempty"`
+	Category       string   `json:"category,omitempty"`
+	FoodType       int      `json:"food_type,omitempty"`
+	Calcium        int      `json:"calcium,omitempty"`
+	Calories       int      `json:"calories,omitempty"`
+	Carbohydrate   float64  `json:"carbohydrate,omitempty"`
+	Cholesterol    float64  `json:"cholesterol,omitempty"`
+	Fiber          float64  `json:"fiber,omitempty"`
+	Protein        float64  `json:"protein,omitempty"`
+	SaturatedFat   float64  `json:"saturated_fat,omitempty"`
+	Sodium         float64  `json:"sodium,omitempty"`
+	Sugar          float64  `json:"sugar,omitempty"`
+	UnsaturatedFat float64  `json:"unsaturated_fat,omitempty"`
+	Caffeine       float64  `json:"caffeine,omitempty"`
 }
 
 /*
@@ -109,18 +119,18 @@ share	boolean	Set whether to share event on user's public feed. Will not overrid
 */
 
 type reqCreateCustom struct {
-	Title       string                 `json:"title"`
-	Verb        string                 `json:"verb"`
-	Attributes  map[string]interface{} `json:"attributes"`
-	Note        string                 `json:"note"`
-	ImageURL    string                 `json:"image_url"`
-	PlaceLat    float64                `json:"place_lat"`
-	PlaceLon    float64                `json:"place_lon"`
-	PlaceAcc    float64                `json:"place_acc"`
-	PlaceName   string                 `json:"place_name"`
-	TimeCreated int                    `json:"time_created"`
-	TimeZone    string                 `json:"tz"`
-	Share       bool                   `json:"share"`
+	Title       string                 `schema:"title"`
+	Verb        string                 `schema:"verb"`
+	Attributes  map[string]interface{} `schema:"attributes"`
+	Note        string                 `schema:"note"`
+	ImageURL    string                 `schema:"image_url"`
+	PlaceLat    float64                `schema:"place_lat"`
+	PlaceLon    float64                `schema:"place_lon"`
+	PlaceAcc    float64                `schema:"place_acc"`
+	PlaceName   string                 `schema:"place_name"`
+	TimeCreated int                    `schema:"time_created"`
+	TimeZone    string                 `schema:"tz"`
+	Share       bool                   `schema:"share"`
 }
 
 type token struct {
@@ -130,31 +140,53 @@ type token struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+func (cm reqCreateMeal) ConvForm() *url.Values {
+	urlValue := url.Values{}
+	if err := encoder.Encode(cm, urlValue); err != nil {
+		logrus.WithError(err).Error("Faild Encode")
+	}
+
+	jsonItemBytes, err := json.Marshal(cm.Items)
+	if err == nil {
+		urlValue.Add("items", string(jsonItemBytes))
+	} else {
+		logrus.WithError(err).Error("Faild item marshal")
+	}
+
+	return &urlValue
+}
+
+func (cc reqCreateCustom) ConvForm() *url.Values {
+	urlValue := url.Values{}
+	encoder.Encode(cc, urlValue)
+	return &urlValue
+}
+
 func (j *jawbone) save() error {
-	j.ID = newUUID()
-	return db.Update(func(tx *bolt.Tx) error {
-		jawbones, err := tx.CreateBucketIfNotExists([]byte("jawbones"))
-		if err != nil {
-			return fmt.Errorf("create bucket: %s", err)
-		}
+	if j.Token == nil {
+		return errInvalidToken
+	}
+	sid, err := shortid.New(1, shortid.DefaultABC, 2342)
+	if err != nil {
+		return err
+	}
+	if j.ID, err = sid.Generate(); err != nil {
+		return err
+	}
 
-		jawboneBytes, err := json.Marshal(&j)
-		if err != nil {
-			return nil
-		}
-
-		return jawbones.Put([]byte(j.ID), jawboneBytes)
-	})
+	return jDB.CreateJawbone(*j)
 }
 
 func (j jawbone) createMeal(createMeal reqCreateMeal) error {
-	logrus.Info("current token", j.Token.AccessToken)
 	requestParam := httpRequestParams{
-		Method:  "POST",
-		URL:     apiURL + "/nudge/api/v.1.1/users/@me/meals",
-		Body:    &createMeal,
-		Forms:   nil,
-		Headers: map[string]string{"Authorization": fmt.Sprintf("Bearer %s", j.Token.AccessToken)},
+		Method: "POST",
+		URL:    apiURL + "/nudge/api/v.1.1/users/@me/meals",
+		Forms:  createMeal.ConvForm(),
+		Headers: map[string]string{
+			"Authorization": fmt.Sprintf("Bearer %s", j.Token.AccessToken),
+			"Accept":        "application/json",
+			"Host":          "life.jjgo.kr",
+		},
 	}
 
 	res, err := requestParam.request()
@@ -162,9 +194,9 @@ func (j jawbone) createMeal(createMeal reqCreateMeal) error {
 		return err
 	}
 
-	logrus.Info(res.StatusCode)
-	logrus.Info(string(res.Body))
+	logrus.Debugf("res.StatusCode: %d. %s", res.StatusCode, string(res.Body))
 	if res.StatusCode != 201 {
+		logrus.WithError(err).Errorf("Faild. status code = %d. %s", res.StatusCode, string(res.Body))
 		return errCreateMeal
 	}
 
@@ -173,11 +205,16 @@ func (j jawbone) createMeal(createMeal reqCreateMeal) error {
 
 func (j jawbone) createEvent(createCustom reqCreateCustom) error {
 	requestParam := httpRequestParams{
-		Method:  "POST",
-		URL:     apiURL + "/nudge/api/v.1.1/users/@me/generic_events",
-		Body:    &createCustom,
-		Forms:   nil,
-		Headers: map[string]string{"Authorization": "Bearer", j.Token.AccessToken: ""},
+		Method: "POST",
+		URL:    apiURL + "/nudge/api/v.1.1/users/@me/generic_events",
+		Body:   &createCustom,
+		Forms:  createCustom.ConvForm(),
+		Headers: map[string]string{
+			"Authorization":     fmt.Sprintf("Bearer %s", j.Token.AccessToken),
+			j.Token.AccessToken: "",
+			"Accept":            "application/json",
+			"Host":              "life.jjgo.kr",
+		},
 	}
 
 	res, err := requestParam.request()
@@ -190,73 +227,6 @@ func (j jawbone) createEvent(createCustom reqCreateCustom) error {
 	}
 
 	return nil
-}
-
-func (j jawbone) drinkWater(cups int) error {
-	createWater := reqCreateMeal{
-		Note:    "물먹기",
-		SubType: 0,
-		//ImageURL: "",
-		Items: []reqCreateMealItem{
-			reqCreateMealItem{
-				Name:           "Water",
-				Amount:         float64(cups),
-				Measurement:    "cpus",
-				Type:           2,
-				FoodCategories: []string{"water"},
-				FoodType:       1,
-				Calories:       0,
-			},
-		},
-	}
-	return j.createMeal(createWater)
-}
-
-//dumpType 1: 매우좋은, 2:색깔이 안좋은, 3:물
-func (j jawbone) takeDump(dumpType int, pain bool, constipation bool, blood bool) error {
-	createDumpEvnet := reqCreateCustom{
-		Title: "대변",
-		Verb:  "보다",
-		Attributes: map[string]interface{}{
-			"dumpType":     dumpType,
-			"pain":         pain,
-			"constipation": constipation,
-			"blood":        blood,
-		},
-		Note: fmt.Sprintf("상태 : %d, 고통: %t, 변비: %t, 피: %t", dumpType, pain, constipation, blood),
-	}
-	return j.createEvent(createDumpEvnet)
-}
-
-//peeType 1: 매우좋은, 2:색깔이 안좋은
-func (j jawbone) pee(peeType int, blood bool) error {
-	createDumpEvnet := reqCreateCustom{
-		Title: "소변",
-		Verb:  "보다",
-		Attributes: map[string]interface{}{
-			"peeType": peeType,
-			"blood":   blood,
-		},
-		Note: fmt.Sprintf("상태 : %d, 피: %s", peeType, blood),
-	}
-	return j.createEvent(createDumpEvnet)
-}
-
-func getJawbone(id string) (*jawbone, error) {
-	j := &jawbone{}
-	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("jawbones"))
-		k := []byte(id)
-		if err := json.Unmarshal(b.Get(k), j); err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return j, nil
 }
 
 func newUUID() string {
