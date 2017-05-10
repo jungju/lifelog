@@ -60,6 +60,10 @@ func (jDB jawboneDB) GetJawbone(token string) (*jawbone, error) {
 			return errInvalidToken
 		}
 		k := []byte(token)
+		valueBytes := b.Get(k)
+		if len(valueBytes) <= 0 {
+			return errInvalidToken
+		}
 		if err := json.Unmarshal(b.Get(k), j); err != nil {
 			return err
 		}
