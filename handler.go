@@ -72,7 +72,6 @@ func handlerWater(w http.ResponseWriter, r *http.Request) {
 	jawboneClient, err := makeJawbone(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 
@@ -86,7 +85,6 @@ func handlerWater(w http.ResponseWriter, r *http.Request) {
 	if err := jawboneClient.eventWater(time.Now(), int(cups)); err != nil {
 		logrus.WithError(err).Error("Failed drinkWater")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 
@@ -97,7 +95,6 @@ func handlerCoffee(w http.ResponseWriter, r *http.Request) {
 	jawboneClient, err := makeJawbone(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 
@@ -111,7 +108,6 @@ func handlerCoffee(w http.ResponseWriter, r *http.Request) {
 	if err := jawboneClient.eventCoffee(time.Now()); err != nil {
 		logrus.WithError(err).Error("Failed drinkWater")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 
@@ -122,7 +118,6 @@ func handlerPooh(w http.ResponseWriter, r *http.Request) {
 	jawboneClient, err := makeJawbone(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 
@@ -137,7 +132,6 @@ func handlerPooh(w http.ResponseWriter, r *http.Request) {
 
 	if err := jawboneClient.eventPooh(time.Now(), dumptype, pain, constipation, blood); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 
@@ -148,7 +142,6 @@ func handlerUrine(w http.ResponseWriter, r *http.Request) {
 	jawboneClient, err := makeJawbone(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 
@@ -161,7 +154,6 @@ func handlerUrine(w http.ResponseWriter, r *http.Request) {
 
 	if err := jawboneClient.eventUrine(time.Now(), peeType, blood); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -171,7 +163,6 @@ func handlerMigraine(w http.ResponseWriter, r *http.Request) {
 	jawboneClient, err := makeJawbone(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 
@@ -183,7 +174,6 @@ func handlerMigraine(w http.ResponseWriter, r *http.Request) {
 
 	if err := jawboneClient.eventMigraine(time.Now(), direction); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -193,7 +183,6 @@ func handlerIndigestion(w http.ResponseWriter, r *http.Request) {
 	jawboneClient, err := makeJawbone(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 
@@ -215,36 +204,14 @@ func handlerCustom(w http.ResponseWriter, r *http.Request) {
 	// jawboneClient, err := makeJawbone(r)
 	// if err != nil {
 	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	fmt.Fprint(w, "Internal Server Error 500")
 	// }
 
 	// if err := jawboneClient.//(); err != nil {
 	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	fmt.Fprint(w, "Internal Server Error 500")
 	// }
 
 	w.WriteHeader(http.StatusCreated)
 }
-
-// func handlerMealEvent(w http.ResponseWriter, r *http.Request) {
-// 	query := r.URL.Query()
-// 	mainItem := map[string][]string{}
-// 	subItem := map[string][]string{}
-// 	for key := range query {
-// 		strList := query[key]
-// 		if len(query[key]) == 0 {
-// 			continue
-// 		}
-
-// 		if equalMealItemType("main", key) {
-// 			subItem[key] = strList
-// 		} else if equalMealItemType("sub", key) {
-// 			mainItem[key] = strList
-// 		}
-// 	}
-// 	 reqCreateMeal.
-// 	//logrus.Debug()
-// }
 
 func equalMealItemType(itemType string, name string) bool {
 	if strings.Index(name, fmt.Sprintf("%s_", itemType)) == 0 {
