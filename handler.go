@@ -10,13 +10,11 @@ import (
 
 	"time"
 
+	"strings"
+
 	"github.com/Sirupsen/logrus"
 	"goji.io/pat"
 )
-
-func handlerHello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello")
-}
 
 func handlerRedirectToLogin(w http.ResponseWriter, r *http.Request) {
 	AuthCodeOption := oauth2.SetAuthURLParam("access_type", "code")
@@ -26,7 +24,6 @@ func handlerRedirectToLogin(w http.ResponseWriter, r *http.Request) {
 
 func handlerCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
-
 	queryString := fmt.Sprintf("client_id=%s&client_secret=%s&grant_type=authorization_code&code=%s", conf.ClientID, conf.ClientSecret, code)
 	req := httpRequestParams{
 		URL:    fmt.Sprintf("%s?%s", conf.Endpoint.TokenURL, queryString),
@@ -37,7 +34,6 @@ func handlerCallback(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.WithError(err).Error("Failed callback")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 
@@ -45,17 +41,15 @@ func handlerCallback(w http.ResponseWriter, r *http.Request) {
 	if err = json.Unmarshal(res.Body, resToken); err != nil {
 		logrus.WithError(err).Error("Failed Unmarshal")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 
-	j := &jawbone{Token: resToken}
-	if err := j.save(); err != nil {
+	createJawbone := &jawbone{Token: resToken}
+	if err := createJawbone.save(); err != nil {
 		logrus.WithError(err).Error("Failed save")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 	}
-	http.Redirect(w, r, fmt.Sprintf("/?token=%s", j.ID), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, fmt.Sprintf("/?token=%s", createJawbone.ID), http.StatusTemporaryRedirect)
 }
 
 func makeJawbone(r *http.Request) (*jawbone, error) {
@@ -67,7 +61,6 @@ func handlerTokens(w http.ResponseWriter, r *http.Request) {
 	jawbones, err := jDB.ListJawbons()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 	}
 	for _, jawbone := range jawbones {
 		fmt.Fprintln(w, jawbone.ID, jawbone.Token)
@@ -231,6 +224,33 @@ func handlerCustom(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+// func handlerMealEvent(w http.ResponseWriter, r *http.Request) {
+// 	query := r.URL.Query()
+// 	mainItem := map[string][]string{}
+// 	subItem := map[string][]string{}
+// 	for key := range query {
+// 		strList := query[key]
+// 		if len(query[key]) == 0 {
+// 			continue
+// 		}
+
+// 		if equalMealItemType("main", key) {
+// 			subItem[key] = strList
+// 		} else if equalMealItemType("sub", key) {
+// 			mainItem[key] = strList
+// 		}
+// 	}
+// 	 reqCreateMeal.
+// 	//logrus.Debug()
+// }
+
+func equalMealItemType(itemType string, name string) bool {
+	if strings.Index(name, fmt.Sprintf("%s_", itemType)) == 0 {
+		return true
+	}
+	return false
 }
 
 func convToIntFromQuery(r *http.Request, query string, defaultValue int) int {

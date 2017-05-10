@@ -6,7 +6,7 @@ import (
 )
 
 func (j jawbone) eventWater(createdtime time.Time, cups int) error {
-	createWater := reqCreateMeal{
+	return j.createMeal(reqCreateMeal{
 		Note:    "Water",
 		SubType: 4,
 		//ImageURL: "",
@@ -21,12 +21,11 @@ func (j jawbone) eventWater(createdtime time.Time, cups int) error {
 				FoodCategories: []string{"water"},
 			},
 		},
-	}
-	return j.createMeal(createWater)
+	})
 }
 
 func (j jawbone) eventCoffee(createdtime time.Time) error {
-	createWater := reqCreateMeal{
+	return j.createMeal(reqCreateMeal{
 		Note:    "아이스 아메리카노",
 		SubType: 6,
 		//ImageURL:    "https://jawbone.com/ver/static/images/up/nutrition/categories/Food_icn_drink@2x_high.png",
@@ -47,13 +46,12 @@ func (j jawbone) eventCoffee(createdtime time.Time) error {
 				Calories:     10,
 			},
 		},
-	}
-	return j.createMeal(createWater)
+	})
 }
 
 //dumpType 1: 매우좋은, 2:색깔이 안좋은, 3:물
 func (j jawbone) eventPooh(createdtime time.Time, dumpType int, pain bool, constipation bool, blood bool) error {
-	createDumpEvnet := reqCreateCustom{
+	return j.createEvent(reqCreateCustom{
 		Title:       "대변",
 		Verb:        "보다",
 		TimeCreated: int(createdtime.Unix()),
@@ -64,13 +62,12 @@ func (j jawbone) eventPooh(createdtime time.Time, dumpType int, pain bool, const
 			"blood":        blood,
 		},
 		Note: fmt.Sprintf("상태 : %d, 고통: %t, 변비: %t, 피: %t", dumpType, pain, constipation, blood),
-	}
-	return j.createEvent(createDumpEvnet)
+	})
 }
 
 //peeType 1: 매우좋은, 2:색깔이 안좋은
 func (j jawbone) eventUrine(createdtime time.Time, peeType int, blood bool) error {
-	createDumpEvnet := reqCreateCustom{
+	return j.createEvent(reqCreateCustom{
 		Title:       "소변",
 		Verb:        "누음",
 		TimeCreated: int(createdtime.Unix()),
@@ -79,12 +76,11 @@ func (j jawbone) eventUrine(createdtime time.Time, peeType int, blood bool) erro
 			"blood":   blood,
 		},
 		Note: fmt.Sprintf("상태 : %d, 피: %s", peeType, blood),
-	}
-	return j.createEvent(createDumpEvnet)
+	})
 }
 
 func (j jawbone) eventMigraine(createdtime time.Time, direction int) error {
-	createDumpEvnet := reqCreateCustom{
+	return j.createEvent(reqCreateCustom{
 		Title:       "소변",
 		Verb:        "누음",
 		TimeCreated: int(createdtime.Unix()),
@@ -92,12 +88,11 @@ func (j jawbone) eventMigraine(createdtime time.Time, direction int) error {
 			"direction": direction,
 		},
 		Note: fmt.Sprintf("부분 : %d", direction),
-	}
-	return j.createEvent(createDumpEvnet)
+	})
 }
 
 func (j jawbone) eventIndigestion(createdtime time.Time, organ int) error {
-	createDumpEvnet := reqCreateCustom{
+	return j.createEvent(reqCreateCustom{
 		Title:       "소화불량",
 		Verb:        "아픔",
 		TimeCreated: int(createdtime.Unix()),
@@ -105,6 +100,5 @@ func (j jawbone) eventIndigestion(createdtime time.Time, organ int) error {
 			"organ": organ,
 		},
 		Note: fmt.Sprintf("기관: %s", organ),
-	}
-	return j.createEvent(createDumpEvnet)
+	})
 }

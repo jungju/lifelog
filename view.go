@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 
@@ -19,7 +18,6 @@ func handlerHomeView(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.WithError(err).Error("Failed ParseFiles")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 	token := r.URL.Query().Get("token")
@@ -27,15 +25,14 @@ func handlerHomeView(w http.ResponseWriter, r *http.Request) {
 	vaildToken := true
 	_, err = jDB.GetJawbone(token)
 	if err != nil {
+		logrus.WithError(err).Error("Failed GetJawbone")
 		token = ""
 		vaildToken = false
 	}
 
-	urlToken := ""
+	urlToken := ":token"
 	if token != "" {
 		urlToken = token
-	} else {
-		urlToken = ":token"
 	}
 
 	var data = map[string]interface{}{
@@ -46,13 +43,11 @@ func handlerHomeView(w http.ResponseWriter, r *http.Request) {
 	if err := t.ExecuteTemplate(w, "events", data); err != nil {
 		logrus.WithError(err).Error("Failed ExecuteTemplate")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 	if err := t.Execute(w, nil); err != nil {
 		logrus.WithError(err).Error("Failed Execute")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
 		return
 	}
 }
