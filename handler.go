@@ -125,6 +125,7 @@ func handlerPooh(w http.ResponseWriter, r *http.Request) {
 	if dumptype == -1 {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprint(w, "Require dumptype")
+		return
 	}
 	pain := convToBoolFromQuery(r, "pain", false)
 	constipation := convToBoolFromQuery(r, "constipation", false)
@@ -149,6 +150,7 @@ func handlerUrine(w http.ResponseWriter, r *http.Request) {
 	if peeType == -1 {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "Require peeType")
+		return
 	}
 	blood := convToBoolFromQuery(r, "blood", false)
 
@@ -170,6 +172,7 @@ func handlerMigraine(w http.ResponseWriter, r *http.Request) {
 	if direction == -1 {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "Require direction")
+		return
 	}
 
 	if err := jawboneClient.eventMigraine(time.Now(), direction); err != nil {
@@ -194,21 +197,8 @@ func handlerIndigestion(w http.ResponseWriter, r *http.Request) {
 
 	if err := jawboneClient.eventIndigestion(time.Now(), organ); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error 500")
+		return
 	}
-
-	w.WriteHeader(http.StatusCreated)
-}
-
-func handlerCustom(w http.ResponseWriter, r *http.Request) {
-	// jawboneClient, err := makeJawbone(r)
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// }
-
-	// if err := jawboneClient.//(); err != nil {
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// }
 
 	w.WriteHeader(http.StatusCreated)
 }

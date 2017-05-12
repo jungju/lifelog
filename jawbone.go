@@ -1,9 +1,7 @@
 package main
 
 import (
-	"crypto/rand"
 	"fmt"
-	"io"
 
 	"net/url"
 
@@ -121,7 +119,7 @@ share	boolean	Set whether to share event on user's public feed. Will not overrid
 type reqCreateCustom struct {
 	Title       string                 `schema:"title"`
 	Verb        string                 `schema:"verb"`
-	Attributes  map[string]interface{} `schema:"attributes"`
+	Attributes  map[string]interface{} `schema:"-"`
 	Note        string                 `schema:"note"`
 	ImageURL    string                 `schema:"image_url"`
 	PlaceLat    float64                `schema:"place_lat"`
@@ -159,6 +157,14 @@ func (cm reqCreateMeal) ConvForm() *url.Values {
 func (cc reqCreateCustom) ConvForm() *url.Values {
 	urlValue := url.Values{}
 	encoder.Encode(cc, urlValue)
+
+	jsonItemBytes, err := json.Marshal(cc.Attributes)
+	if err == nil {
+		urlValue.Add("attributes", string(jsonItemBytes))
+	} else {
+		logrus.WithError(err).Error("Faild item marshal")
+	}
+
 	return &urlValue
 }
 
@@ -185,7 +191,7 @@ func (j jawbone) createMeal(createMeal reqCreateMeal) error {
 		Headers: map[string]string{
 			"Authorization": fmt.Sprintf("Bearer %s", j.Token.AccessToken),
 			"Accept":        "application/json",
-			"Host":          "life.jjgo.kr",
+			"Host":          host,
 		},
 	}
 
@@ -194,7 +200,6 @@ func (j jawbone) createMeal(createMeal reqCreateMeal) error {
 		return err
 	}
 
-	logrus.Debugf("res.StatusCode: %d. %s", res.StatusCode, string(res.Body))
 	if res.StatusCode != 201 {
 		logrus.WithError(err).Errorf("Faild. status code = %d. %s", res.StatusCode, string(res.Body))
 		return errCreateMeal
@@ -207,13 +212,12 @@ func (j jawbone) createEvent(createCustom reqCreateCustom) error {
 	requestParam := httpRequestParams{
 		Method: "POST",
 		URL:    apiURL + "/nudge/api/v.1.1/users/@me/generic_events",
-		Body:   &createCustom,
 		Forms:  createCustom.ConvForm(),
 		Headers: map[string]string{
 			"Authorization":     fmt.Sprintf("Bearer %s", j.Token.AccessToken),
 			j.Token.AccessToken: "",
 			"Accept":            "application/json",
-			"Host":              "life.jjgo.kr",
+			"Host":              host,
 		},
 	}
 
@@ -227,17 +231,4 @@ func (j jawbone) createEvent(createCustom reqCreateCustom) error {
 	}
 
 	return nil
-}
-
-func newUUID() string {
-	uuid := make([]byte, 16)
-	n, err := io.ReadFull(rand.Reader, uuid)
-	if n != len(uuid) || err != nil {
-		return "errorKey"
-	}
-	// variant bits; see section 4.1.1
-	uuid[8] = uuid[8]&^0xc0 | 0x80
-	// version 4 (pseudo-random); see section 4.1.3
-	uuid[6] = uuid[6]&^0xf0 | 0x40
-	return fmt.Sprintf("%x-%x-%x-%x-%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:])
 }

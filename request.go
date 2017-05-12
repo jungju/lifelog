@@ -8,8 +8,6 @@ import (
 	"net/url"
 	"strconv"
 	"time"
-
-	"github.com/Sirupsen/logrus"
 )
 
 type httpRequestParams struct {
@@ -38,7 +36,6 @@ func (params *httpRequestParams) request() (*httpResponse, error) {
 		req, err = http.NewRequest(params.Method, params.URL, bytes.NewBufferString(params.Forms.Encode()))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		req.Header.Add("Content-Length", strconv.Itoa(len(params.Forms.Encode())))
-		logrus.Debugf("form: %s", string(params.Forms.Encode()))
 	} else {
 		req, err = http.NewRequest(params.Method, params.URL, nil)
 	}

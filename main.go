@@ -69,7 +69,6 @@ func main() {
 	mux.HandleFunc(pat.Get("/up/event/:token/coffee"), handlerCoffee)
 	mux.HandleFunc(pat.Get("/up/event/:token/pooh"), handlerPooh)
 	mux.HandleFunc(pat.Get("/up/event/:token/urine"), handlerUrine)
-	mux.HandleFunc(pat.Get("/up/event/:token/custom"), handlerCustom)
 	mux.HandleFunc(pat.Get("/up/tokens"), handlerTokens)
 	mux.HandleFunc(pat.Get("/"), handlerHomeView)
 	//mux.HandleFunc(pat.Get("/tokens"), handlerTokensView)
