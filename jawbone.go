@@ -156,7 +156,9 @@ func (cm reqCreateMeal) ConvForm() *url.Values {
 
 func (cc reqCreateCustom) ConvForm() *url.Values {
 	urlValue := url.Values{}
-	encoder.Encode(cc, urlValue)
+	if err := encoder.Encode(cc, urlValue); err != nil {
+		logrus.WithError(err).Error("Faild Encode")
+	}
 
 	jsonItemBytes, err := json.Marshal(cc.Attributes)
 	if err == nil {

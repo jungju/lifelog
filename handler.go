@@ -121,17 +121,17 @@ func handlerPooh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dumptype := convToIntFromQuery(r, "type", -1)
-	if dumptype == -1 {
+	poohType := convToIntFromQuery(r, "poohType", -1)
+	if poohType == -1 {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "Require dumptype")
+		fmt.Fprint(w, "Require poohType")
 		return
 	}
 	pain := convToBoolFromQuery(r, "pain", false)
 	constipation := convToBoolFromQuery(r, "constipation", false)
 	blood := convToBoolFromQuery(r, "blood", false)
 
-	if err := jawboneClient.eventPooh(time.Now(), dumptype, pain, constipation, blood); err != nil {
+	if err := jawboneClient.eventPooh(time.Now(), poohType, pain, constipation, blood); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
