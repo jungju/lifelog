@@ -46,7 +46,7 @@
         </div>
         <button type="submit" class="btn btn-primary">링크 만들기</button>
         <br>
-        {{ if ne .token ":token"}}{{ if eq .vaildToken false}}
+        {{ if ne .token ""}}{{ if eq .vaildToken false}}
         <small class="text-danger">잘못된 토큰입니다. 현재 특정 사용자만 사용하고 있습니다. 필요하시면 연락주세요. jeongzu@gmail.com</small>
         {{ end }}{{ end }}
       </form>
@@ -62,17 +62,17 @@
         </tr>
         <tr>
           <td class="active">물</td>
-          <td><span class="label label-success">인증됨</span></td>
+          <td>{{ if eq .vaildToken true}}<span class="label label-success">인증됨</span>{{else}}<span class="label label-danger">인증안됨</span>{{end}}</td>
           <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/water?cups=1"></td>
         </tr>
         <tr>
           <td class="active">아이스아메리카노</td>
-          <td><span class="label label-success">인증됨</span></td>
+          <td>{{ if eq .vaildToken true}}<span class="label label-success">인증됨</span>{{else}}<span class="label label-danger">인증안됨</span>{{end}}</td>
           <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/icedamericano"></td>
         </tr>
         <tr>
           <td class="active">아이스라떼</td>
-          <td><span class="label label-success">인증됨</span></td>
+          <td>{{ if eq .vaildToken true}}<span class="label label-success">인증됨</span>{{else}}<span class="label label-danger">인증안됨</span>{{end}}</td>
           <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/icedlatte"></td>
         </tr>
         <tr>
@@ -80,12 +80,12 @@
         </tr>
         <tr>
           <td class="active">소변</td>
-          <td><span class="label label-success">인증됨</span></td>
+          <td>{{ if eq .vaildToken true}}<span class="label label-success">인증됨</span>{{else}}<span class="label label-danger">인증안됨</span>{{end}}</td>
           <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/urine?urineType=1"></td>
         </tr>
         <tr>
           <td class="active">대변</td>
-          <td><span class="label label-success">인증됨</span></td>
+          <td>{{ if eq .vaildToken true}}<span class="label label-success">인증됨</span>{{else}}<span class="label label-danger">인증안됨</span>{{end}}</td>
           <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/pooh?poohType=1"></td>
         </tr>
         <tr>
@@ -93,12 +93,12 @@
         </tr>
         <tr>
           <td class="active">두통</td>
-          <td><span class="label label-success">인증됨</span></td>
+          <td>{{ if eq .vaildToken true}}<span class="label label-success">인증됨</span>{{else}}<span class="label label-danger">인증안됨</span>{{end}}</td>
           <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/migraine?direction=1"></td>
         </tr>
         <tr>
           <td class="active">소화불량</td>
-          <td><span class="label label-success">인증됨</span></td>
+          <td>{{ if eq .vaildToken true}}<span class="label label-success">인증됨</span>{{else}}<span class="label label-danger">인증안됨</span>{{end}}</td>
           <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/indigestion?organ=1"></td>
         </tr>
         <tr>
@@ -106,12 +106,12 @@
         </tr>
         <tr>
           <td class="default">분유</td>
-          <td><span class="label label-success">인증됨</span></td>
+          <td>{{ if eq .vaildToken true}}<span class="label label-success">인증됨</span>{{else}}<span class="label label-danger">인증안됨</span>{{end}}</td>
           <td class="warning"><input type="text" class="form-control" readonly value="개발중"></td>
         </tr>
         <tr>
           <td class="default">대소변</td>
-          <td><span class="label label-success">인증됨</span></td>
+          <td>{{ if eq .vaildToken true}}<span class="label label-success">인증됨</span>{{else}}<span class="label label-danger">인증안됨</span>{{end}}</td>
           <td class="warning"><input type="text" class="form-control" readonly value="개발중"></td>
         </tr>
       </table>
