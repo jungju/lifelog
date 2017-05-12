@@ -8,7 +8,6 @@ WORKDIR $SRC_DIR
 RUN go get github.com/tools/godep
 RUN go build -o $GOPATH/bin/life *.go
 
-ENV DB_NAME life.db
 ENV WEB_PORT 8373
 
 CMD $BIN_FILE
