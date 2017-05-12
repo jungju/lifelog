@@ -54,6 +54,7 @@ func (j jawbone) eventPooh(createdtime time.Time, dumpType int, pain bool, const
 	return j.createEvent(reqCreateCustom{
 		Title:       "대변",
 		Verb:        "보다",
+		TimeZone:    "Asia/Seoul",
 		TimeCreated: int(createdtime.Unix()),
 		Attributes: map[string]interface{}{
 			"dumpType":     dumpType,
@@ -70,6 +71,7 @@ func (j jawbone) eventUrine(createdtime time.Time, peeType int, blood bool) erro
 	return j.createEvent(reqCreateCustom{
 		Title:       "소변",
 		Verb:        "누음",
+		TimeZone:    "Asia/Seoul",
 		TimeCreated: int(createdtime.Unix()),
 		Attributes: map[string]interface{}{
 			"peeType": peeType,
