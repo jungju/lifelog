@@ -24,7 +24,7 @@ func (j jawbone) eventWater(createdtime time.Time, cups int) error {
 	})
 }
 
-func (j jawbone) eventCoffee(createdtime time.Time) error {
+func (j jawbone) eventIcedAmericano(createdtime time.Time) error {
 	return j.createMeal(reqCreateMeal{
 		Note:    "아이스 아메리카노",
 		SubType: 6,
@@ -49,11 +49,37 @@ func (j jawbone) eventCoffee(createdtime time.Time) error {
 	})
 }
 
+func (j jawbone) eventIcedLatte(createdtime time.Time) error {
+	return j.createMeal(reqCreateMeal{
+		Note:    "아이스 라떼",
+		SubType: 6,
+		//ImageURL:    "https://jawbone.com/ver/static/images/up/nutrition/categories/Food_icn_drink@2x_high.png",
+		TimeZone:    "Asia/Seoul",
+		TimeCreated: int(createdtime.Unix()),
+		Items: []reqCreateMealItem{
+			reqCreateMealItem{
+				Name:         "아이스 라떼",
+				Amount:       float64(1),
+				Measurement:  "잔",
+				Type:         5,
+				SubType:      1,
+				FoodType:     1,
+				Category:     "coffee",
+				Carbohydrate: 13,
+				Protein:      7,
+				Sodium:       110,
+				Calories:     80,
+				Sugar:        10,
+			},
+		},
+	})
+}
+
 //dumpType 1: 매우좋은, 2:색깔이 안좋은, 3:물
 func (j jawbone) eventPooh(createdtime time.Time, dumpType int, pain bool, constipation bool, blood bool) error {
 	return j.createEvent(reqCreateCustom{
 		Title:       "대변",
-		Verb:        "보다",
+		Verb:        "배변",
 		TimeZone:    "Asia/Seoul",
 		TimeCreated: int(createdtime.Unix()),
 		Attributes: map[string]interface{}{
@@ -66,8 +92,9 @@ func (j jawbone) eventPooh(createdtime time.Time, dumpType int, pain bool, const
 	})
 }
 
-//peeType 1: 매우좋은, 2:색깔이 안좋은
-func (j jawbone) eventUrine(createdtime time.Time, peeType int, blood bool) error {
+//peeType 1: 좋은, 2:나쁜
+//color:1: 하얀, 2: 약한노란, 3: 진한노란
+func (j jawbone) eventUrine(createdtime time.Time, peeType int, color int, blood bool) error {
 	return j.createEvent(reqCreateCustom{
 		Title:       "소변",
 		Verb:        "누음",
@@ -75,16 +102,18 @@ func (j jawbone) eventUrine(createdtime time.Time, peeType int, blood bool) erro
 		TimeCreated: int(createdtime.Unix()),
 		Attributes: map[string]interface{}{
 			"peeType": peeType,
+			"color":   color,
 			"blood":   blood,
 		},
 		Note: fmt.Sprintf("상태 : %d, 피: %s", peeType, blood),
 	})
 }
 
+//direction 1: 오른쪽, 2:왼쪽
 func (j jawbone) eventMigraine(createdtime time.Time, direction int) error {
 	return j.createEvent(reqCreateCustom{
-		Title:       "소변",
-		Verb:        "누음",
+		Title:       "편두통",
+		Verb:        "아픔",
 		TimeCreated: int(createdtime.Unix()),
 		Attributes: map[string]interface{}{
 			"direction": direction,
@@ -93,6 +122,7 @@ func (j jawbone) eventMigraine(createdtime time.Time, direction int) error {
 	})
 }
 
+//organ 1: 위, 2: 장
 func (j jawbone) eventIndigestion(createdtime time.Time, organ int) error {
 	return j.createEvent(reqCreateCustom{
 		Title:       "소화불량",

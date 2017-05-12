@@ -68,7 +68,12 @@
         <tr>
           <td class="active">아이스아메리카노</td>
           <td><span class="label label-success">인증됨</span></td>
-          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/coffee"></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/icedamericano"></td>
+        </tr>
+        <tr>
+          <td class="active">아이스라떼</td>
+          <td><span class="label label-success">인증됨</span></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/icedlatte"></td>
         </tr>
         <tr>
           <td class="default" colspan="3"><h3>배변</h3></td>
@@ -76,12 +81,12 @@
         <tr>
           <td class="active">소변</td>
           <td><span class="label label-success">인증됨</span></td>
-          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/urine?state=1"></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/urine?urineType=1"></td>
         </tr>
         <tr>
           <td class="active">대변</td>
           <td><span class="label label-success">인증됨</span></td>
-          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/pooh?state=1"></td>
+          <td class="warning"><input type="text" class="form-control" readonly value="http://life.jjgo.kr/up/event/{{.urlToken}}/pooh?poohType=1"></td>
         </tr>
         <tr>
           <td class="default" colspan="3"><h3>병</h3></td>

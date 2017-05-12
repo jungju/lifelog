@@ -91,22 +91,31 @@ func handlerWater(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func handlerCoffee(w http.ResponseWriter, r *http.Request) {
+func handlerIcedAmericano(w http.ResponseWriter, r *http.Request) {
 	jawboneClient, err := makeJawbone(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	cups := convToIntFromQuery(r, "cups", -1)
-	if cups == -1 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "Require cups")
+	if err := jawboneClient.eventIcedAmericano(time.Now()); err != nil {
+		logrus.WithError(err).Error("Failed eventIcedAmericano")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	if err := jawboneClient.eventCoffee(time.Now()); err != nil {
-		logrus.WithError(err).Error("Failed drinkWater")
+	w.WriteHeader(http.StatusCreated)
+}
+
+func handlerIcedLatte(w http.ResponseWriter, r *http.Request) {
+	jawboneClient, err := makeJawbone(r)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if err := jawboneClient.eventIcedLatte(time.Now()); err != nil {
+		logrus.WithError(err).Error("Failed eventIcedLatte")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -152,9 +161,10 @@ func handlerUrine(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Require peeType")
 		return
 	}
+	color := convToIntFromQuery(r, "color", 1)
 	blood := convToBoolFromQuery(r, "blood", false)
 
-	if err := jawboneClient.eventUrine(time.Now(), peeType, blood); err != nil {
+	if err := jawboneClient.eventUrine(time.Now(), peeType, color, blood); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
