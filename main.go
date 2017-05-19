@@ -41,7 +41,7 @@ func init() {
 	port = os.Getenv("WEB_PORT")
 	host = os.Getenv("HOST")
 	if port == "" {
-		port = "8080"
+		port = "8373"
 	}
 	if host == "" {
 		host = "localhost"

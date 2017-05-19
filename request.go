@@ -45,7 +45,9 @@ func (params *httpRequestParams) request() (*httpResponse, error) {
 	for key, value := range params.Headers {
 		req.Header.Set(key, value)
 	}
-	httpClient := &http.Client{Timeout: time.Duration(10 * time.Second)}
+	httpClient := &http.Client{
+		Timeout: time.Duration(60 * time.Minute),
+	}
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
