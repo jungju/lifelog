@@ -13,5 +13,5 @@ Collect all data and analyze pattern and AI
 
 ## Screenshot
 ### mobile version
-![Alt text](lifedog.jpg)
-![Alt text](lifedog_water.jpg)
+![](/lifedog.png)
+![](/lifedog_water.png)
