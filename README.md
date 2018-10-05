@@ -9,3 +9,8 @@ Let's collect all the events with jawbone
 
 ## goal
 Collect all data and analyze pattern and AI
+
+## Screenshot
+### mobile version
+![Alt text](lifedog.jpg)
+![Alt text](lifedog_water.jpg)
