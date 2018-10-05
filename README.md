@@ -1,8 +1,9 @@
 # lifelog
 Let's collect all the events with jawbone
 
-## event
+## Event collect
 - Water Drinking Events
+- Coffee Events
 - Toilet event
 - Headache event
 - Abdominal pain event
